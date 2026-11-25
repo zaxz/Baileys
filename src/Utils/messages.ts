@@ -20,6 +20,7 @@ import type {
 	MessageGenerationOptionsFromContent,
 	MessageUserReceipt,
 	MessageWithContextInfo,
+	SoundStickerMessageContent,
 	WAMediaUpload,
 	WAMessage,
 	WAMessageContent,
@@ -392,6 +393,51 @@ function hasOptionalProperty<T, K extends PropertyKey>(obj: T, key: K): obj is W
 	return typeof obj === 'object' && obj !== null && key in obj && (obj as any)[key] !== null
 }
 
+/**
+ * Builds a native WhatsApp "sound sticker" message: a sticker with an attached
+ * audio track. Reverse-engineered from real sound-sticker samples (WhatsApp beta
+ * Android 2.26.47.1): the sticker and the audio are uploaded as two separate media,
+ * then assembled into a Message whose field 134 wraps the stickerMessage, with the
+ * audio attached to it as StickerMessage field 26.
+ */
+export const prepareSoundStickerMessageContent = async (
+	message: SoundStickerMessageContent,
+	options: MessageContentGenerationOptions
+) => {
+	const { sticker, audio } = message.soundSticker
+	const { stickerMessage } = await prepareWAMessageMedia(
+		{ sticker, isAnimated: message.isAnimated, width: message.width, height: message.height },
+		options
+	)
+	const { audioMessage } = await prepareWAMessageMedia({ audio, seconds: message.seconds }, options)
+
+	if (!stickerMessage || !audioMessage) {
+		throw new Boom('failed to prepare sound sticker media', { statusCode: 500 })
+	}
+
+	// field 24 is present (value 0) in every sticker sample, regular and sound alike
+	stickerMessage.stickerFlags = 0
+	// the audio track: a complete AudioMessage attached to the sticker
+	stickerMessage.audioMessage = audioMessage
+	// the official client sends these explicitly; Baileys' regular sticker path omits
+	// them, so set them here to match the observed sound-sticker samples
+	stickerMessage.stickerSentTs = Date.now()
+	stickerMessage.isAvatar = false
+	stickerMessage.isAiSticker = false
+	stickerMessage.isLottie = false
+	// field 74 in each media's contextInfo references that media's own mediaKey
+	stickerMessage.contextInfo = {
+		...stickerMessage.contextInfo,
+		mediaKeyInfo: { version: 1, mediaKey: stickerMessage.mediaKey }
+	}
+	audioMessage.contextInfo = {
+		...audioMessage.contextInfo,
+		mediaKeyInfo: { version: 1, mediaKey: audioMessage.mediaKey }
+	}
+
+	return { soundStickerMessage: { message: { stickerMessage } } }
+}
+
 export const generateWAMessageContent = async (
 	message: AnyMessageContent,
 	options: MessageContentGenerationOptions
@@ -607,6 +653,8 @@ export const generateWAMessageContent = async (
 				initiatedByMe: true
 			}
 		}
+	} else if (hasNonNullishProperty(message, 'soundSticker')) {
+		m = await prepareSoundStickerMessageContent(message, options)
 	} else {
 		m = await prepareWAMessageMedia(message, options)
 	}
@@ -812,7 +860,8 @@ export const normalizeMessageContent = (content: WAMessageContent | null | undef
 			message?.editedMessage ||
 			message?.associatedChildMessage ||
 			message?.groupStatusMessage ||
-			message?.groupStatusMessageV2
+			message?.groupStatusMessageV2 ||
+			message?.soundStickerMessage
 		)
 	}
 }

@@ -1317,6 +1317,10 @@ message ContextInfo {
     optional uint32 nonJidMentions = 70;
     optional QuotedType quotedType = 71;
     optional BotMessageSharingInfo botMessageSharingInfo = 72;
+    // Reverse-engineered from real sticker samples (WhatsApp beta Android 2.26.47.1):
+    // present in the contextInfo of BOTH the sticker and the audio of a sound sticker
+    // (and in regular stickers too). Field 2 holds that media's own mediaKey.
+    optional MediaKeyInfo mediaKeyInfo = 74;
     message AdReplyInfo {
         optional string advertiserName = 1;
         optional MediaType mediaType = 2;
@@ -1331,6 +1335,13 @@ message ContextInfo {
 
     message BusinessMessageForwardInfo {
         optional string businessOwnerJid = 1;
+    }
+
+    // Reverse-engineered from real sticker samples (WhatsApp beta Android 2.26.47.1).
+    // Field 1 observed as 1 in all samples; field 2 is the media's own mediaKey.
+    message MediaKeyInfo {
+        optional int32 version = 1;
+        optional bytes mediaKey = 2;
     }
 
     message DataSharingContext {
@@ -2159,6 +2170,11 @@ message Message {
     optional PollCreationMessage pollCreationMessageV5 = 111;
     optional NewsletterFollowerInviteMessage newsletterFollowerInviteMessageV2 = 113;
     optional PollResultSnapshotMessage pollResultSnapshotMessageV3 = 114;
+    // Reverse-engineered from real sound-sticker samples (WhatsApp beta Android 2.26.47.1):
+    // a sound sticker arrives as a FutureProofMessage wrapper whose inner Message holds the
+    // stickerMessage (with its audio attached). Field number proven by samples; the name is
+    // ours, WhatsApp has published no official name for it.
+    optional FutureProofMessage soundStickerMessage = 134;
     message AlbumMessage {
         optional uint32 expectedImageCount = 2;
         optional uint32 expectedVideoCount = 3;
@@ -3500,6 +3516,16 @@ message Message {
         optional bool isLottie = 21;
         optional string accessibilityLabel = 22;
         optional Message.MediaKeyDomain mediaKeyDomain = 23;
+        // Reverse-engineered from real sticker samples (WhatsApp beta Android 2.26.47.1).
+        // Field 24 is present (varint 0) in ALL sticker samples, regular and sound alike;
+        // its semantics are unknown, so it is replicated as 0. Field 25 (a short string,
+        // observed only in regular stickers) is deliberately left undefined: it is absent
+        // from sound stickers and must not be sent with them.
+        optional int32 stickerFlags = 24;
+        // The audio track of a sound sticker: a complete AudioMessage. Present only in
+        // sound stickers; this is the single feature that distinguishes them from regular
+        // stickers (besides the field 134 wrapper).
+        optional AudioMessage audioMessage = 26;
     }
 
     message StickerPackMessage {

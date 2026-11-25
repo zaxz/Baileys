@@ -3182,6 +3182,7 @@ export namespace proto {
         nonJidMentions?: (number|null);
         quotedType?: (proto.ContextInfo.QuotedType|null);
         botMessageSharingInfo?: (proto.IBotMessageSharingInfo|null);
+        mediaKeyInfo?: (proto.ContextInfo.IMediaKeyInfo|null);
     }
 
     class ContextInfo implements IContextInfo {
@@ -3241,6 +3242,7 @@ export namespace proto {
         public nonJidMentions?: (number|null);
         public quotedType?: (proto.ContextInfo.QuotedType|null);
         public botMessageSharingInfo?: (proto.IBotMessageSharingInfo|null);
+        public mediaKeyInfo?: (proto.ContextInfo.IMediaKeyInfo|null);
         public static create(properties?: proto.IContextInfo): proto.ContextInfo;
         public static encode(m: proto.IContextInfo, w?: $protobuf.Writer): $protobuf.Writer;
         public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): proto.ContextInfo;
@@ -3295,6 +3297,24 @@ export namespace proto {
             public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): proto.ContextInfo.BusinessMessageForwardInfo;
             public static fromObject(d: { [k: string]: any }): proto.ContextInfo.BusinessMessageForwardInfo;
             public static toObject(m: proto.ContextInfo.BusinessMessageForwardInfo, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        interface IMediaKeyInfo {
+            version?: (number|null);
+            mediaKey?: (Uint8Array|null);
+        }
+
+        class MediaKeyInfo implements IMediaKeyInfo {
+            constructor(p?: proto.ContextInfo.IMediaKeyInfo);
+            public version?: (number|null);
+            public mediaKey?: (Uint8Array|null);
+            public static create(properties?: proto.ContextInfo.IMediaKeyInfo): proto.ContextInfo.MediaKeyInfo;
+            public static encode(m: proto.ContextInfo.IMediaKeyInfo, w?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): proto.ContextInfo.MediaKeyInfo;
+            public static fromObject(d: { [k: string]: any }): proto.ContextInfo.MediaKeyInfo;
+            public static toObject(m: proto.ContextInfo.MediaKeyInfo, o?: $protobuf.IConversionOptions): { [k: string]: any };
             public toJSON(): { [k: string]: any };
             public static getTypeUrl(typeUrlPrefix?: string): string;
         }
@@ -5278,6 +5298,7 @@ export namespace proto {
         pollCreationMessageV5?: (proto.Message.IPollCreationMessage|null);
         newsletterFollowerInviteMessageV2?: (proto.Message.INewsletterFollowerInviteMessage|null);
         pollResultSnapshotMessageV3?: (proto.Message.IPollResultSnapshotMessage|null);
+        soundStickerMessage?: (proto.Message.IFutureProofMessage|null);
     }
 
     class Message implements IMessage {
@@ -5377,6 +5398,7 @@ export namespace proto {
         public pollCreationMessageV5?: (proto.Message.IPollCreationMessage|null);
         public newsletterFollowerInviteMessageV2?: (proto.Message.INewsletterFollowerInviteMessage|null);
         public pollResultSnapshotMessageV3?: (proto.Message.IPollResultSnapshotMessage|null);
+        public soundStickerMessage?: (proto.Message.IFutureProofMessage|null);
         public static create(properties?: proto.IMessage): proto.Message;
         public static encode(m: proto.IMessage, w?: $protobuf.Writer): $protobuf.Writer;
         public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): proto.Message;
@@ -9008,6 +9030,8 @@ export namespace proto {
             isLottie?: (boolean|null);
             accessibilityLabel?: (string|null);
             mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
+            stickerFlags?: (number|null);
+            audioMessage?: (proto.Message.IAudioMessage|null);
         }
 
         class StickerMessage implements IStickerMessage {
@@ -9033,6 +9057,8 @@ export namespace proto {
             public isLottie?: (boolean|null);
             public accessibilityLabel?: (string|null);
             public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
+            public stickerFlags?: (number|null);
+            public audioMessage?: (proto.Message.IAudioMessage|null);
             public static create(properties?: proto.Message.IStickerMessage): proto.Message.StickerMessage;
             public static encode(m: proto.Message.IStickerMessage, w?: $protobuf.Writer): $protobuf.Writer;
             public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): proto.Message.StickerMessage;

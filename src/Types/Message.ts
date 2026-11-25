@@ -171,6 +171,17 @@ type RequestPhoneNumber = {
 	requestPhoneNumber: boolean
 }
 
+export type SoundStickerMessageContent = {
+	/** A sticker with an attached audio track (WhatsApp "sound sticker"). */
+	soundSticker: {
+		sticker: WAMediaUpload
+		audio: WAMediaUpload
+	}
+	isAnimated?: boolean
+	/** optionally tell the duration of the audio (seconds) */
+	seconds?: number
+} & WithDimensions
+
 export type AnyMediaMessageContent = (
 	| ({
 			image: WAMediaUpload
@@ -200,6 +211,7 @@ export type AnyMediaMessageContent = (
 			sticker: WAMediaUpload
 			isAnimated?: boolean
 	  } & WithDimensions)
+	| SoundStickerMessageContent
 	| ({
 			document: WAMediaUpload
 			mimetype: string
